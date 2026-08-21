@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WDT — Data profile</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link rel="stylesheet" href="shared.css">
+<style>
+.stp.done 
+
+.stp.active 
+
+.content{position:fixed;top:92px;left:0;right:0;bottom:54px;overflow-y:auto}
+.inner{max-width:780px;margin:0 auto;padding:24px 24px 48px}
+.eyebrow{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#666;margin-bottom:10px}
+.rule{width:28px;height:3px;background:var(--purple);margin-bottom:14px}
+.page-title{font-size:22px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px}
+.page-title span{color:var(--purple)}
+.page-sub{font-size:12px;color:#888;line-height:1.7;margin-bottom:22px}
+.sec-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#666;margin-bottom:8px}
+/* Metric cards */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px}
+.metric{background:#0d0d0d;border:.5px solid #1a1a1a;padding:12px 14px}
+.metric.red{border-top:2px solid var(--red)}
+.metric.yellow{border-top:2px solid var(--yellow)}
+.metric-label{font-size:10px;color:#666;margin-bottom:5px;text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+.metric-val{font-size:20px;font-weight:700;color:#fff;letter-spacing:-.02em;line-height:1}
+.metric.red .metric-val{color:var(--red)}
+.metric.yellow .metric-val{color:var(--yellow)}
+.metric-sub{font-size:10px;color:#555;margin-top:3px}
+/* Middle grid */
+.mid-grid{display:grid;grid-template-columns:1fr 200px;gap:10px;margin-bottom:18px;align-items:start}
+/* Quality table */
+.qtbl{border:.5px solid #1a1a1a;overflow:hidden}
+.qtbl-head{display:grid;grid-template-columns:1fr 68px 58px 78px;background:#0d0d0d;border-bottom:.5px solid #1a1a1a;padding:6px 12px}
+.th{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#555}
+.qrow{display:grid;grid-template-columns:1fr 68px 58px 78px;padding:8px 12px;border-bottom:.5px solid #080808;align-items:center}
+.qrow:last-child{border-bottom:none}
+.qrow.alt{background:#040404}
+.qcol{font-size:11px;color:#bbb;font-family:monospace}
+.qmiss{font-size:11px;font-weight:600}
+.qmiss.crit{color:var(--red)}
+.qmiss.med{color:var(--yellow)}
+.qmiss.minor{color:#777}
+.qrate{font-size:11px}
+.qrate.crit{color:var(--red)}
+.qrate.med{color:var(--yellow)}
+.qrate.minor{color:#777}
+.sev-badge{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:700;padding:2px 6px}
+.sev-badge .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.sev-crit{color:var(--red)}
+.sev-med{color:var(--yellow)}
+.sev-minor{color:#555}
+.qtbl-note{font-size:10px;color:#555;margin-top:6px;line-height:1.5}
+/* Coverage */
+.cvg-list{border:.5px solid #1a1a1a;overflow:hidden}
+.cvg-row{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-bottom:.5px solid #080808}
+.cvg-row:last-child{border-bottom:none}
+.cvg-row.alt{background:#040404}
+.cvg-left{display:flex;align-items:center;gap:8px}
+.cvg-name{font-size:11px;color:#ccc}
+.cvg-count{font-size:10px;color:#666}
+.cvg-note{font-size:10px;color:#555;margin-top:6px;line-height:1.5}
+/* Volume bar */
+.bar-wrap{width:48px;height:4px;background:#111;border-radius:2px;flex-shrink:0}
+.bar-fill{height:100%;border-radius:2px;background:var(--purple)}
+/* Signals */
+.signals{display:flex;flex-direction:column;gap:7px}
+.signal{display:flex;align-items:flex-start;gap:10px;padding:11px 13px;border-radius:0}
+.signal.high{background:var(--rdim);border-left:2px solid var(--red)}
+.signal.med{background:var(--ydim);border-left:2px solid var(--yellow)}
+.signal-body{flex:1}
+.signal-title{font-size:12px;font-weight:600;color:#fff;margin-bottom:2px}
+.signal-desc{font-size:11px;color:#888;line-height:1.55}
+.sig-badge{display:flex;align-items:center;gap:4px;padding:2px 7px;border-radius:0;flex-shrink:0;margin-top:2px}
+.sig-badge.high{background:rgba(248,113,113,.1);border:.5px solid rgba(248,113,113,.2)}
+.sig-badge.med{background:rgba(234,179,8,.1);border:.5px solid rgba(234,179,8,.2)}
+.sig-badge-dot{width:5px;height:5px;border-radius:50%}
+.sig-badge.high .sig-badge-dot{background:var(--red)}
+.sig-badge.med .sig-badge-dot{background:var(--yellow)}
+.sig-badge-lbl{font-size:9px;font-weight:700}
+.sig-badge.high .sig-badge-lbl{color:var(--red)}
+.sig-badge.med .sig-badge-lbl{color:var(--yellow)}
+.signals-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.preview-note{font-size:10px;color:#555}
+/* Footer */
+
+.btn-next{background:var(--purple);color:#fff;cursor:pointer}
+.btn-next:hover{background:#8800dd}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo"><span class="nav-arrow">></span><span class="nav-name">accenture</span></div>
+  <span class="nav-meta">Warehousing Diagnostic Tool · v1</span>
+</nav>
+
+<div class="step-bar">
+  <div class="stp done"><span class="stp-num"><i class="ti ti-check" style="font-size:8px"></i></span>Setup</div>
+  <div class="stp-sep"><i class="ti ti-chevron-right"></i></div>
+  <div class="stp done"><span class="stp-num"><i class="ti ti-check" style="font-size:8px"></i></span>Schema mapping</div>
+  <div class="stp-sep"><i class="ti ti-chevron-right"></i></div>
+  <div class="stp active"><span class="stp-num">3</span>Data profile</div>
+  <div class="stp-sep"><i class="ti ti-chevron-right"></i></div>
+  <div class="stp "><span class="stp-num">4</span>Process validation</div>
+  <div class="stp-sep"><i class="ti ti-chevron-right"></i></div>
+  <div class="stp "><span class="stp-num">5</span>Deep dive</div>
+  <div class="stp-sep"><i class="ti ti-chevron-right"></i></div>
+  <div class="stp "><span class="stp-num">6</span>Prioritization</div>
+  <div class="stp-sep"><i class="ti ti-chevron-right"></i></div>
+  <div class="stp "><span class="stp-num">7</span>Action plan</div>
+</div>
+
+<div class="content">
+<div class="inner">
+
+  <div class="eyebrow">Data profile · Step 3 of 7</div>
+  <div class="rule"></div>
+  <div class="page-title">What the <span>data shows</span></div>
+  <div class="page-sub">A snapshot of data quality and coverage before analysis begins. Review gaps and early signals — the deep dive follows in the next step.</div>
+
+  <!-- Metric cards -->
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-label">Total events</div>
+      <div class="metric-val">14,192</div>
+      <div class="metric-sub">Aug 2–16, 2026 · 14 days</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Process areas</div>
+      <div class="metric-val">4</div>
+      <div class="metric-sub">Found in this data</div>
+    </div>
+    <div class="metric red">
+      <div class="metric-label">Critical gaps</div>
+      <div class="metric-val">2</div>
+      <div class="metric-sub">Fields with high missing rate</div>
+    </div>
+    <div class="metric yellow">
+      <div class="metric-label">Early signals</div>
+      <div class="metric-val">3</div>
+      <div class="metric-sub">Anomalies detected in log</div>
+    </div>
+  </div>
+
+  <!-- Mid grid: quality + coverage -->
+  <div class="mid-grid">
+
+    <!-- Quality flags -->
+    <div>
+      <div class="sec-label">Data quality flags</div>
+      <div class="qtbl">
+        <div class="qtbl-head">
+          <div class="th">Field</div>
+          <div class="th">Missing</div>
+          <div class="th">Rate</div>
+          <div class="th">Severity</div>
+        </div>
+        <div class="qrow">
+          <div class="qcol">Product SKU</div>
+          <div class="qmiss crit">8,752</div>
+          <div class="qrate crit">61.7%</div>
+          <div class="sev-badge sev-crit"><div class="dot" style="background:var(--red)"></div>Critical</div>
+        </div>
+        <div class="qrow alt">
+          <div class="qcol">Operator ID</div>
+          <div class="qmiss med">979</div>
+          <div class="qrate med">6.9%</div>
+          <div class="sev-badge sev-med"><div class="dot" style="background:var(--yellow)"></div>Medium</div>
+        </div>
+        <div class="qrow">
+          <div class="qcol">Priority casing</div>
+          <div class="qmiss minor">142</div>
+          <div class="qrate minor">1.0%</div>
+          <div class="sev-badge sev-minor"><div class="dot" style="background:#555"></div>Minor</div>
+        </div>
+        <div class="qrow alt">
+          <div class="qcol">Event End Time</div>
+          <div class="qmiss minor">115</div>
+          <div class="qrate minor">0.8%</div>
+          <div class="sev-badge sev-minor"><div class="dot" style="background:#555"></div>Minor</div>
+        </div>
+      </div>
+      <div class="qtbl-note">Missing Product SKUs will limit traceability in the deep dive. Operator IDs affect resource and labour analysis. Priority casing inconsistency ("Normal" vs "NORMAL") should be standardised in WMS.</div>
+    </div>
+
+    <!-- Process areas in this data -->
+    <div>
+      <div class="sec-label">Process areas in this data</div>
+      <div class="cvg-list">
+        <div class="cvg-row">
+          <div class="cvg-left">
+            <i class="ti ti-arrow-up-circle" aria-hidden="true" style="font-size:13px;color:var(--purple);flex-shrink:0"></i>
+            <span class="cvg-name">Outbound</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="bar-wrap"><div class="bar-fill" style="width:79%"></div></div>
+            <span class="cvg-count">11,255</span>
+          </div>
+        </div>
+        <div class="cvg-row alt">
+          <div class="cvg-left">
+            <i class="ti ti-arrow-down-circle" aria-hidden="true" style="font-size:13px;color:var(--purple);flex-shrink:0"></i>
+            <span class="cvg-name">Inbound</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="bar-wrap"><div class="bar-fill" style="width:14%"></div></div>
+            <span class="cvg-count">1,914</span>
+          </div>
+        </div>
+        <div class="cvg-row">
+          <div class="cvg-left">
+            <i class="ti ti-refresh" aria-hidden="true" style="font-size:13px;color:var(--purple);flex-shrink:0"></i>
+            <span class="cvg-name">Replenishment</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="bar-wrap"><div class="bar-fill" style="width:6%"></div></div>
+            <span class="cvg-count">763</span>
+          </div>
+        </div>
+        <div class="cvg-row alt">
+          <div class="cvg-left">
+            <i class="ti ti-rotate" aria-hidden="true" style="font-size:13px;color:var(--purple);flex-shrink:0"></i>
+            <span class="cvg-name">Returns</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="bar-wrap"><div class="bar-fill" style="width:2%"></div></div>
+            <span class="cvg-count">260</span>
+          </div>
+        </div>
+      </div>
+      <div class="cvg-note">Bars show share of total events. Outbound dominates at 79%. Other areas may exist but were not exported.</div>
+    </div>
+
+  </div>
+
+  <!-- Early signals -->
+  <div>
+    <div class="signals-head">
+      <div class="sec-label" style="margin-bottom:0">Early signals</div>
+      <div class="preview-note">Preview only — full analysis in deep dive</div>
+    </div>
+    <div class="signals">
+
+      <div class="signal high">
+        <i class="ti ti-alert-triangle" aria-hidden="true" style="font-size:14px;color:var(--red);flex-shrink:0;margin-top:1px"></i>
+        <div class="signal-body">
+          <div class="signal-title">9.6% of events breach SLA threshold — 1,361 of 14,192</div>
+          <div class="signal-desc">Outbound accounts for 78.8% of late events (1,073 of 1,361). Picking and packing are the highest-rework activities. Direct client delivery impact.</div>
+        </div>
+        <div class="sig-badge high"><div class="sig-badge-dot"></div><span class="sig-badge-lbl">HIGH</span></div>
+      </div>
+
+      <div class="signal med">
+        <i class="ti ti-alert-triangle" aria-hidden="true" style="font-size:14px;color:var(--yellow);flex-shrink:0;margin-top:1px"></i>
+        <div class="signal-body">
+          <div class="signal-title">3.1% rework rate — 437 events flagged across the operation</div>
+          <div class="signal-desc">Picking Completed accounts for 76 rework events, Goods Packed for 52. Concentrated in outbound and points to pick accuracy or packing instruction issues.</div>
+        </div>
+        <div class="sig-badge med"><div class="sig-badge-dot"></div><span class="sig-badge-lbl">MED</span></div>
+      </div>
+
+      <div class="signal med">
+        <i class="ti ti-alert-triangle" aria-hidden="true" style="font-size:14px;color:var(--yellow);flex-shrink:0;margin-top:1px"></i>
+        <div class="signal-body">
+          <div class="signal-title">Mixed source systems — Oracle WMS Cloud and Oracle Fusion WMS both present</div>
+          <div class="signal-desc">1,120 events originate from Oracle Fusion WMS (7.9% of log). Schema divergence between systems may introduce inconsistencies in event naming and timestamps.</div>
+        </div>
+        <div class="sig-badge med"><div class="sig-badge-dot"></div><span class="sig-badge-lbl">MED</span></div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+function goBack(){window.location.href="step2.html";}
+function goNext(){window.location.href="step4.html";}
+</script>
+
+
+<footer>
+  <div class="ftr-left">
+    <div class="ftr-status">Continue when ready — no action required here</div>
+    <div class="pips">
+      <div class="pip done"></div><div class="pip done"></div><div class="pip done"></div>
+      <div class="pip active"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div>
+    </div>
+  </div>
+  <div class="ftr-btns">
+    <button class="btn btn-ghost" onclick="goBack()"><i class="ti ti-arrow-left" style="font-size:11px"></i> Back</button>
+    <button class="btn btn-primary" onclick="goNext()">Continue to process validation <i class="ti ti-arrow-right" style="font-size:11px"></i></button>
+  </div>
+</footer>
+
+</body>
+</html>

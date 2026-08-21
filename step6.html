@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WDT — Prioritization</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link rel="stylesheet" href="shared.css">
+<style>
+.stp.active 
+.stp.done 
+
+.content{position:fixed;top:92px;left:0;right:0;bottom:54px;overflow-y:auto}
+.inner{max-width:780px;margin:0 auto;padding:24px 24px 48px}
+.eyebrow{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#666;margin-bottom:10px}
+.rule{width:28px;height:3px;background:var(--purple);margin-bottom:14px}
+.page-title{font-size:22px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px}
+.page-title span{color:var(--purple)}
+.page-sub{font-size:12px;color:#888;line-height:1.7;margin-bottom:16px}
+/* Summary bar */
+.summary-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#080808;border:.5px solid #1a1a1a;margin-bottom:14px}
+.sum-left{display:flex;align-items:center;gap:16px}
+.sum-stat{display:flex;align-items:center;gap:5px;font-size:11px;color:#888}
+.sdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.sum-divider{width:1px;height:14px;background:#1a1a1a}
+.sum-selected{font-size:11px;font-weight:700;color:var(--purple)}
+/* Table */
+.tbl{border:.5px solid #1a1a1a;overflow:hidden;margin-bottom:0}
+.tbl-head{display:grid;grid-template-columns:28px 32px 10px 84px 1fr 40px;gap:8px;background:#0d0d0d;border-bottom:.5px solid #1a1a1a;padding:7px 12px;align-items:center}
+.th{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#555}
+/* Finding row */
+.frow{display:grid;grid-template-columns:28px 32px 10px 84px 1fr 40px;gap:8px;padding:11px 12px;border-bottom:.5px solid #0a0a0a;align-items:start;transition:background .1s;cursor:pointer}
+.frow.selected{background:var(--pdim);border-left:2px solid var(--pborder)}
+.frow.selected:hover{background:rgba(161,0,255,.12)}
+.frow.archived{opacity:.42;cursor:pointer}
+.frow.archived:hover{opacity:.6}
+/* Checkbox */
+.chk{width:15px;height:15px;border-radius:3px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.chk.on{background:var(--pdim);border:1px solid var(--pborder)}
+.chk.off{background:#1a0a0a;border:1px solid rgba(248,113,113,.25)}
+/* Rank */
+.rank{font-size:14px;font-weight:800;color:var(--purple);margin-top:0;line-height:1}
+.rank.archived-rank{color:#333}
+/* Sev dot */
+.sev-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+/* Area tag */
+.area-tag{display:inline-flex;align-items:center;padding:2px 7px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;height:fit-content;white-space:nowrap}
+.tag-outbound{background:rgba(248,113,113,.08);border:.5px solid rgba(248,113,113,.22);color:var(--red)}
+.tag-inbound{background:rgba(161,0,255,.08);border:.5px solid rgba(161,0,255,.22);color:var(--purple)}
+.tag-replen{background:rgba(234,179,8,.08);border:.5px solid rgba(234,179,8,.22);color:var(--yellow)}
+.tag-returns{background:rgba(100,100,100,.08);border:.5px solid rgba(100,100,100,.22);color:#777}
+/* Content */
+.f-title{font-size:12px;font-weight:600;color:#fff;margin-bottom:3px;line-height:1.4}
+.f-desc{font-size:10px;color:#777;line-height:1.5}
+/* Order buttons */
+.order-btns{display:flex;flex-direction:column;gap:3px;align-items:center}
+.ord-btn{width:18px;height:18px;background:#0d0d0d;border:.5px solid #1a1a1a;color:#666;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:10px;transition:all .1s;flex-shrink:0}
+.ord-btn:hover{background:#1a1a1a;color:#ccc}
+/* Archive divider */
+.archive-div{padding:6px 12px;background:#050505;border-top:.5px solid #111;border-bottom:.5px solid #0a0a0a}
+.archive-div-label{font-size:10px;font-weight:700;color:#2a2a2a;letter-spacing:.08em;text-transform:uppercase}
+/* Bottom note */
+.bottom-note{display:flex;align-items:center;gap:6px;font-size:11px;color:#555;margin-top:12px}
+/* Footer */
+
+.ftr-status.pending{color:#888}
+
+.btn-next{background:var(--purple);color:#fff;cursor:pointer}
+.btn-next:hover{background:#8800dd}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo"><span class="nav-arrow">></span><span class="nav-name">accenture</span></div>
+  <span class="nav-meta">Warehousing Diagnostic Tool · v1</span>
+</nav>
+
+<div class="step-bar">
+  <div class="stp done"><span class="stp-num"><i class="ti ti-check" style="font-size:8px"></i></span>Setup</div>
+  <div class="stp-sep"><i class="ti ti-chevron-right"></i></div>
+  <div class="stp done"><span class="stp-num"><i class="ti ti-check" style="font-size:8px"></i></span>Schema mapping</div>
+  <div class="stp-sep"><i class="ti ti-chevron-right"></i></div>
+  <div class="stp done"><span class="stp-num"><i class="ti ti-check" style="font-size:8px"></i></span>Data profile</div>
+  <div class="stp-sep"><i class="ti ti-chevron-right"></i></div>
+  <div class="stp done"><span class="stp-num"><i class="ti ti-check" style="font-size:8px"></i></span>Process validation</div>
+  <div class="stp-sep"><i class="ti ti-chevron-right"></i></div>
+  <div class="stp done"><span class="stp-num"><i class="ti ti-check" style="font-size:8px"></i></span>Deep dive</div>
+  <div class="stp-sep"><i class="ti ti-chevron-right"></i></div>
+  <div class="stp active"><span class="stp-num">6</span>Prioritization</div>
+  <div class="stp-sep"><i class="ti ti-chevron-right"></i></div>
+  <div class="stp "><span class="stp-num">7</span>Action plan</div>
+</div>
+
+<div class="content">
+<div class="inner">
+
+  <div class="eyebrow">Prioritization · Step 6 of 7</div>
+  <div class="rule"></div>
+  <div class="page-title">Rank the <span>findings</span></div>
+  <div class="page-sub">All findings from the deep dive, ranked by operational impact. Select which carry forward to the action plan — unselected findings are archived, not lost. Use ↑↓ to reorder.</div>
+
+  <div class="summary-bar">
+    <div class="sum-left">
+      <div class="sum-stat"><div class="sdot" style="background:var(--red)"></div><span id="cnt-high">4 high</span></div>
+      <div class="sum-divider"></div>
+      <div class="sum-stat"><div class="sdot" style="background:var(--yellow)"></div><span id="cnt-med">3 medium</span></div>
+      <div class="sum-divider"></div>
+      <div class="sum-stat"><div class="sdot" style="background:#555"></div><span id="cnt-low">3 low / data</span></div>
+    </div>
+    <div class="sum-selected" id="sum-selected">5 findings selected for action plan</div>
+  </div>
+
+  <div class="tbl" id="tbl">
+    <div class="tbl-head">
+      <div class="th"></div>
+      <div class="th">Rank</div>
+      <div class="th"></div>
+      <div class="th">Area</div>
+      <div class="th">Finding</div>
+      <div class="th">Order</div>
+    </div>
+    <div id="rows-container"></div>
+  </div>
+
+  <div class="bottom-note">
+    <i class="ti ti-info-circle" aria-hidden="true" style="font-size:13px;color:#444"></i>
+    Archived findings are saved in the full export — they do not disappear. Click any archived row to pull it back into the selection.
+  </div>
+
+</div>
+</div>
+
+<script>
+function goBack(){window.location.href="step5.html";}
+function goNext(){window.location.href="step7.html";}
+var findings = [
+  {id:0, sev:'high',   area:'inbound',    areaTag:'tag-inbound',    title:'Trailer Unloading averages 120 min — 4× the 30 min benchmark',           desc:'Highest lead time step in the full operation. Spikes to 200 min. Cascades into QC and putaway delays. Primary driver of inbound SLA failures.',         selected:true},
+  {id:1, sev:'high',   area:'outbound',   areaTag:'tag-outbound',   title:'9.5% of outbound events breach SLA — 1,073 of 11,255',                    desc:'Picking Completed (76) and Goods Packed (52) are the highest rework activities. Direct client delivery impact across the 14-day period.',               selected:true},
+  {id:2, sev:'high',   area:'outbound',   areaTag:'tag-outbound',   title:'Goods Packed averages 16.2 min — highest step in outbound flow',           desc:'52 rework events concentrated in packing. Likely cause: packing instruction errors or scan mismatches. Blocks consolidation and dispatch.',             selected:true},
+  {id:3, sev:'high',   area:'inbound',    areaTag:'tag-inbound',    title:'13.3% inbound SLA late — higher rate than outbound despite lower volume',  desc:'254 of 1,914 inbound events are late. Priority inbound receipts fail at 20.5% — WMS priority routing for inbound may not be configured.',             selected:true},
+  {id:4, sev:'medium', area:'inbound',    areaTag:'tag-inbound',    title:'QC Inspection shows high variability — 63 min avg, spikes to 122 min',     desc:'No consistent inspection pattern visible in data. Variability suggests staffing gaps or inconsistent checklist adherence across shifts.',              selected:true},
+  {id:5, sev:'medium', area:'outbound',   areaTag:'tag-outbound',   title:'Low-priority SLA breach nearly double high-priority — wave planning gap',  desc:'Low-priority orders breach SLA at 11.8% vs 7.2% for high. Priority routing in wave planning may not be actively enforced.',                         selected:false},
+  {id:6, sev:'medium', area:'replen',     areaTag:'tag-replen',     title:'6.9% of operator IDs missing — limits root cause traceability',            desc:'Missing operator attribution across all areas prevents individual performance analysis and root cause identification for delays.',                      selected:false},
+  {id:7, sev:'medium', area:'returns',    areaTag:'tag-returns',    title:'Insufficient returns volume for strong conclusions — 260 events',           desc:'Returns account for 1.8% of events. SLA performance is acceptable (1.2% late) but sample size is too low for reliable pattern detection.',           selected:false},
+  {id:8, sev:'low',    area:'replen',     areaTag:'tag-replen',     title:'Replenishment SLA at 4.1% late — low rate, monitor going forward',         desc:'31 late events over 14 days. No strong signal of a systemic issue. Recommend monitoring in next review cycle rather than immediate action.',          selected:false},
+  {id:9, sev:'low',    area:'returns',    areaTag:'tag-returns',    title:'Return Inspection at 18 min — verify this is expected for product type',   desc:'Longest step in the returns process. May be appropriate for the product category. Recommend on-site verification before flagging as a problem.',      selected:false},
+];
+
+function sevColor(s){ return s==='high'?'var(--red)':s==='medium'?'var(--yellow)':'#555'; }
+function sevLabel(s){ return s==='high'?'High':s==='medium'?'Medium':'Low'; }
+
+function getSelected(){ return findings.filter(function(f){ return f.selected; }); }
+function getArchived(){ return findings.filter(function(f){ return !f.selected; }); }
+
+function render() {
+  var sel = getSelected();
+  var arc = getArchived();
+  var container = document.getElementById('rows-container');
+  var html = '';
+
+  // Selected rows
+  sel.forEach(function(f, rank) {
+    html += rowHtml(f, rank+1, false);
+  });
+
+  // Archive divider + archived rows
+  if (arc.length) {
+    html += '<div class="archive-div"><span class="archive-div-label">Archived — not carried forward</span></div>';
+    arc.forEach(function(f) {
+      html += rowHtml(f, null, true);
+    });
+  }
+  container.innerHTML = html;
+  updateSummary();
+}
+
+function rowHtml(f, rank, isArchived) {
+  var chkHtml = isArchived
+    ? '<div class="chk off"></div>'
+    : '<div class="chk on"><i class="ti ti-check" style="font-size:9px;color:var(--purple)"></i></div>';
+  var rankHtml = isArchived
+    ? '<div class="rank archived-rank">—</div>'
+    : '<div class="rank">' + rank + '</div>';
+  var orderHtml = isArchived
+    ? '<div></div>'
+    : '<div class="order-btns">' +
+        '<div class="ord-btn" onclick="moveUp(' + f.id + ')">↑</div>' +
+        '<div class="ord-btn" onclick="moveDown(' + f.id + ')">↓</div>' +
+      '</div>';
+  return '<div class="frow' + (isArchived?' archived':' selected') + '" onclick="toggle(' + f.id + ')">' +
+    chkHtml +
+    rankHtml +
+    '<div class="sev-dot" style="background:' + sevColor(f.sev) + ';margin-top:3px"></div>' +
+    '<div class="area-tag ' + f.areaTag + '">' + f.area.charAt(0).toUpperCase()+f.area.slice(1) + '</div>' +
+    '<div><div class="f-title">' + f.title + '</div><div class="f-desc">' + f.desc + '</div></div>' +
+    orderHtml +
+    '</div>';
+}
+
+function toggle(id) {
+  var f = findings.find(function(x){ return x.id===id; });
+  if (!f) return;
+  f.selected = !f.selected;
+  render();
+}
+
+function moveUp(id) {
+  var sel = getSelected();
+  var idx = sel.findIndex(function(f){ return f.id===id; });
+  if (idx <= 0) return;
+  // Swap in findings array
+  var aIdx = findings.indexOf(sel[idx]);
+  var bIdx = findings.indexOf(sel[idx-1]);
+  var tmp = findings[aIdx]; findings[aIdx] = findings[bIdx]; findings[bIdx] = tmp;
+  render();
+}
+
+function moveDown(id) {
+  var sel = getSelected();
+  var idx = sel.findIndex(function(f){ return f.id===id; });
+  if (idx < 0 || idx >= sel.length-1) return;
+  var aIdx = findings.indexOf(sel[idx]);
+  var bIdx = findings.indexOf(sel[idx+1]);
+  var tmp = findings[aIdx]; findings[aIdx] = findings[bIdx]; findings[bIdx] = tmp;
+  render();
+}
+
+function updateSummary() {
+  var sel = getSelected();
+  var cnt = sel.length;
+  var st = document.getElementById('ftr-status');
+  document.getElementById('sum-selected').textContent = cnt + ' finding' + (cnt!==1?'s':'') + ' selected for action plan';
+  if (cnt > 0) {
+    st.textContent = cnt + ' finding' + (cnt!==1?'s':'') + ' selected — ready to generate action plan';
+    st.className = 'ftr-status ready';
+  } else {
+    st.textContent = 'Select at least one finding to continue';
+    st.className = 'ftr-status pending';
+  }
+}
+
+render();
+</script>
+
+
+<footer>
+  <div class="ftr-left">
+    <div class="ftr-status ready" id="ftr-status">5 findings selected — ready to generate action plan</div>
+    <div class="pips">
+      <div class="pip done"></div><div class="pip done"></div><div class="pip done"></div>
+      <div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip active"></div>
+    </div>
+  </div>
+  <div class="ftr-btns">
+    <button class="btn btn-ghost" onclick="goBack()"><i class="ti ti-arrow-left" style="font-size:11px"></i> Back</button>
+    <button class="btn btn-primary" id="btn-next" onclick="goNext()">Generate action plan <i class="ti ti-arrow-right" style="font-size:11px"></i></button>
+  </div>
+</footer>
+
+</body>
+</html>

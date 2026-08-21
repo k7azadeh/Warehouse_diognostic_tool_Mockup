@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Warehousing Diagnostic Tool — v1</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link rel="stylesheet" href="shared.css">
+<style>
+.hero{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:40px}
+.hero-rule{width:40px;height:3px;background:var(--purple);margin:0 auto 20px}
+.hero-title{font-size:32px;font-weight:800;letter-spacing:-.02em;margin-bottom:10px}
+.hero-title span{color:var(--purple)}
+.hero-sub{font-size:14px;color:#888;line-height:1.7;max-width:520px;margin:0 auto 32px}
+.hero-meta{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:36px;flex-wrap:wrap}
+.hero-badge{display:flex;align-items:center;gap:5px;font-size:11px;color:#555}
+.hero-divider{width:1px;height:14px;background:#1a1a1a}
+.start-btn{display:inline-flex;align-items:center;gap:7px;background:var(--purple);color:#fff;padding:12px 28px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;border:none;font-family:var(--font);text-decoration:none;transition:background .15s}
+.start-btn:hover{background:#8800dd}
+.step-list{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-width:680px;margin:40px auto 0;text-align:left}
+.step-item{background:#0a0a0a;border:.5px solid #1a1a1a;padding:12px 14px}
+.step-item-num{font-size:10px;font-weight:700;color:var(--purple);margin-bottom:4px}
+.step-item-name{font-size:11px;font-weight:600;color:#fff;margin-bottom:2px}
+.step-item-sub{font-size:10px;color:#444;line-height:1.4}
+.version-note{font-size:10px;color:#333;margin-top:32px}
+</style>
+</head>
+<body style="background:#000">
+
+<nav>
+  <div class="nav-logo">
+    <span class="nav-arrow">></span>
+    <span class="nav-name">accenture</span>
+  </div>
+  <span class="nav-meta">Warehousing Diagnostic Tool · v1</span>
+</nav>
+
+<div class="hero" style="padding-top:80px">
+  <div class="hero-rule"></div>
+  <div class="hero-title">Warehousing <span>Diagnostic Tool</span></div>
+  <div class="hero-sub">A structured, repeatable diagnostic that turns WMS event log data into a prioritised action plan — in one session, not weeks.</div>
+
+  <div class="hero-meta">
+    <div class="hero-badge"><i class="ti ti-file-spreadsheet" style="font-size:13px;color:#555"></i>Mock_Data.xlsx · 14,192 events</div>
+    <div class="hero-divider"></div>
+    <div class="hero-badge"><i class="ti ti-calendar" style="font-size:13px;color:#555"></i>Aug 2–16, 2026</div>
+    <div class="hero-divider"></div>
+    <div class="hero-badge"><i class="ti ti-database" style="font-size:13px;color:#555"></i>Oracle WMS Cloud</div>
+    <div class="hero-divider"></div>
+    <div class="hero-badge"><i class="ti ti-cpu" style="font-size:13px;color:#555"></i>Agent-assisted discovery</div>
+  </div>
+
+  <a class="start-btn" href="step1.html">
+    Start diagnostic <i class="ti ti-arrow-right" style="font-size:12px"></i>
+  </a>
+
+  <div class="step-list">
+    <div class="step-item"><div class="step-item-num">01</div><div class="step-item-name">Setup</div><div class="step-item-sub">Upload data, select WMS, confirm process definition</div></div>
+    <div class="step-item"><div class="step-item-num">02</div><div class="step-item-name">Schema mapping</div><div class="step-item-sub">Map columns and event types to internal schema</div></div>
+    <div class="step-item"><div class="step-item-num">03</div><div class="step-item-name">Data profile</div><div class="step-item-sub">Quality flags, coverage, and early signals</div></div>
+    <div class="step-item"><div class="step-item-num">04</div><div class="step-item-name">Process validation</div><div class="step-item-sub">Validate reconstructed process flows before analysis</div></div>
+    <div class="step-item"><div class="step-item-num">05</div><div class="step-item-name">Deep dive</div><div class="step-item-sub">Per-area analysis with contextual findings</div></div>
+    <div class="step-item"><div class="step-item-num">06</div><div class="step-item-name">Prioritization</div><div class="step-item-sub">Rank and select findings for the action plan</div></div>
+    <div class="step-item" style="grid-column:span 2"><div class="step-item-num">07</div><div class="step-item-name">Action plan</div><div class="step-item-sub">One action card per prioritised finding — effort, owner, and solution type defined</div></div>
+  </div>
+
+  <div class="version-note">Accenture Supply Chain · Warehousing Diagnostic Tool · Concept v1 · Built on Oracle WMS Cloud data</div>
+</div>
+
+</body>
+</html>

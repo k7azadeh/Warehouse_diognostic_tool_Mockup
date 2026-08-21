@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WDT — Action plan</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link rel="stylesheet" href="shared.css">
+<style>
+.stp.active 
+.stp.done 
+
+.content{position:fixed;top:92px;left:0;right:0;bottom:54px;overflow-y:auto}
+.inner{max-width:780px;margin:0 auto;padding:24px 24px 48px}
+.eyebrow{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#666;margin-bottom:10px}
+.rule{width:28px;height:3px;background:var(--purple);margin-bottom:14px}
+.page-title{font-size:22px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px}
+.page-title span{color:var(--purple)}
+.page-sub{font-size:12px;color:#888;line-height:1.7;margin-bottom:16px}
+/* Summary strip */
+.summary-strip{display:flex;align-items:center;gap:16px;padding:9px 14px;background:#080808;border:.5px solid #1a1a1a;margin-bottom:20px;flex-wrap:wrap}
+.ss-item{display:flex;align-items:center;gap:5px;font-size:11px;color:#888}
+.ss-div{width:1px;height:14px;background:#1a1a1a;flex-shrink:0}
+/* Cards */
+.cards{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.card{border:.5px solid #1a1a1a;background:#0a0a0a;overflow:hidden}
+.card.high{border-left:3px solid var(--red)}
+.card.medium{border-left:3px solid var(--yellow)}
+.card-head{padding:12px 14px;border-bottom:.5px solid #0d0d0d;display:flex;align-items:center;gap:10px}
+.card-num{font-size:10px;font-weight:700;white-space:nowrap;flex-shrink:0}
+.card.high .card-num{color:var(--red)}
+.card.medium .card-num{color:var(--yellow)}
+.head-divider{width:1px;height:13px;background:#1a1a1a;flex-shrink:0}
+.card-title{font-size:12px;font-weight:700;color:#fff;flex:1;min-width:0}
+.area-tag{display:inline-flex;align-items:center;padding:2px 7px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;flex-shrink:0;white-space:nowrap}
+.tag-outbound{background:rgba(248,113,113,.08);border:.5px solid rgba(248,113,113,.22);color:var(--red)}
+.tag-inbound{background:rgba(161,0,255,.08);border:.5px solid rgba(161,0,255,.22);color:var(--purple)}
+/* Card body */
+.card-body{padding:13px 14px}
+.card-problem{font-size:11px;color:#777;line-height:1.65;margin-bottom:12px}
+.card-intervention-label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#555;margin-bottom:6px}
+.card-intervention{font-size:11px;color:#bbb;line-height:1.65;margin-bottom:13px}
+/* Meta grid */
+.meta-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.meta-cell{background:#080808;border:.5px solid #111;padding:8px 10px}
+.meta-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#444;margin-bottom:3px}
+.meta-val{font-size:11px;color:#ccc}
+/* Closing note */
+.closing-note{display:flex;align-items:flex-start;gap:9px;padding:11px 14px;background:#080808;border:.5px solid #1a1a1a;border-left:2px solid var(--purple);margin-bottom:20px}
+.cn-text{font-size:11px;color:#777;line-height:1.65}
+/* Archived note */
+.archived-note{padding:10px 14px;background:#060606;border:.5px solid #111;display:flex;align-items:center;gap:8px;font-size:11px;color:#444}
+/* Footer */
+
+.btn-export{background:var(--purple);color:#fff;cursor:pointer;display:flex;align-items:center;gap:6px}
+.btn-export:hover{background:#8800dd}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo"><span class="nav-arrow">></span><span class="nav-name">accenture</span></div>
+  <span class="nav-meta">Warehousing Diagnostic Tool · v1</span>
+</nav>
+
+<div class="step-bar">
+  <div class="stp done"><span class="stp-num"><i class="ti ti-check" style="font-size:8px"></i></span>Setup</div>
+  <div class="stp-sep"><i class="ti ti-chevron-right"></i></div>
+  <div class="stp done"><span class="stp-num"><i class="ti ti-check" style="font-size:8px"></i></span>Schema mapping</div>
+  <div class="stp-sep"><i class="ti ti-chevron-right"></i></div>
+  <div class="stp done"><span class="stp-num"><i class="ti ti-check" style="font-size:8px"></i></span>Data profile</div>
+  <div class="stp-sep"><i class="ti ti-chevron-right"></i></div>
+  <div class="stp done"><span class="stp-num"><i class="ti ti-check" style="font-size:8px"></i></span>Process validation</div>
+  <div class="stp-sep"><i class="ti ti-chevron-right"></i></div>
+  <div class="stp done"><span class="stp-num"><i class="ti ti-check" style="font-size:8px"></i></span>Deep dive</div>
+  <div class="stp-sep"><i class="ti ti-chevron-right"></i></div>
+  <div class="stp done"><span class="stp-num"><i class="ti ti-check" style="font-size:8px"></i></span>Prioritization</div>
+  <div class="stp-sep"><i class="ti ti-chevron-right"></i></div>
+  <div class="stp active"><span class="stp-num">7</span>Action plan</div>
+</div>
+
+<div class="content">
+<div class="inner">
+
+  <div class="eyebrow">Action plan · Step 7 of 7</div>
+  <div class="rule"></div>
+  <div class="page-title">Where to <span>go next</span></div>
+  <div class="page-sub">One action card per prioritised finding. Each is a starting point — the detailed workstream design and solution selection happen after this session.</div>
+
+  <!-- Summary strip -->
+  <div class="summary-strip">
+    <div class="ss-item"><i class="ti ti-building-warehouse" aria-hidden="true" style="font-size:13px;color:#555"></i>Oracle WMS Cloud</div>
+    <div class="ss-div"></div>
+    <div class="ss-item"><i class="ti ti-calendar" aria-hidden="true" style="font-size:13px;color:#555"></i>Aug 2–16, 2026 · 14 days</div>
+    <div class="ss-div"></div>
+    <div class="ss-item"><i class="ti ti-file-spreadsheet" aria-hidden="true" style="font-size:13px;color:#555"></i>Mock_Data.xlsx · 14,192 events</div>
+    <div class="ss-div"></div>
+    <div class="ss-item">10 findings detected · <span style="color:var(--purple);font-weight:600;margin-left:3px">5 actioned</span></div>
+  </div>
+
+  <div class="cards">
+
+    <!-- Card 1 -->
+    <div class="card high">
+      <div class="card-head">
+        <span class="card-num">01 · HIGH</span>
+        <div class="head-divider"></div>
+        <div class="card-title">Diagnose the trailer unloading bottleneck</div>
+        <div class="area-tag tag-inbound">Inbound</div>
+      </div>
+      <div class="card-body">
+        <div class="card-problem">Trailer Unloading averages 120 min against a 30 min benchmark — 4× expected. Spikes to 200 min observed. This is the root cause of cascading delays into QC inspection, putaway, and downstream receipt closure.</div>
+        <div class="card-intervention-label">Recommended action</div>
+        <div class="card-intervention">Analyse unloading times by dock door, shift, and carrier using the WMS event log. Cross-reference with carrier arrival schedules to identify whether delays are pre-dock (carrier) or on-dock (crew, equipment). Review staffing levels and dock equipment availability during peak arrival windows. Define a target lead time and set up WMS alerting for breaches.</div>
+        <div class="meta-grid">
+          <div class="meta-cell"><div class="meta-label">Effort</div><div class="meta-val">3–5 days investigation</div></div>
+          <div class="meta-cell"><div class="meta-label">Owner</div><div class="meta-val">Inbound supervisor</div></div>
+          <div class="meta-cell"><div class="meta-label">Type</div><div class="meta-val">Process + scheduling</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="card high">
+      <div class="card-head">
+        <span class="card-num">02 · HIGH</span>
+        <div class="head-divider"></div>
+        <div class="card-title">Reduce outbound SLA failures — focus on picking and packing</div>
+        <div class="area-tag tag-outbound">Outbound</div>
+      </div>
+      <div class="card-body">
+        <div class="card-problem">9.5% of outbound events breach SLA — 1,073 of 11,255 events over 14 days. Picking Completed accounts for 76 rework events and Goods Packed for 52. These two steps alone are responsible for the majority of SLA misses with direct client delivery impact.</div>
+        <div class="card-intervention-label">Recommended action</div>
+        <div class="card-intervention">Map rework triggers per operator, SKU, and shift using the WMS event log. Review pick instruction quality — check for location accuracy issues, label errors, and scan confirmation gaps. Introduce a packing verification step before consolidation. Target a 50% reduction in rework events within 30 days as a measurable first milestone.</div>
+        <div class="meta-grid">
+          <div class="meta-cell"><div class="meta-label">Effort</div><div class="meta-val">1–2 weeks</div></div>
+          <div class="meta-cell"><div class="meta-label">Owner</div><div class="meta-val">Outbound team lead</div></div>
+          <div class="meta-cell"><div class="meta-label">Type</div><div class="meta-val">Process + WMS config</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="card high">
+      <div class="card-head">
+        <span class="card-num">03 · HIGH</span>
+        <div class="head-divider"></div>
+        <div class="card-title">Investigate the Goods Packed bottleneck — 16.2 min average</div>
+        <div class="area-tag tag-outbound">Outbound</div>
+      </div>
+      <div class="card-body">
+        <div class="card-problem">Goods Packed is the highest lead time step in the outbound flow at 16.2 min average. 52 rework events are concentrated here. This step blocks consolidation and dispatch and is a likely contributor to the overall SLA failure rate.</div>
+        <div class="card-intervention-label">Recommended action</div>
+        <div class="card-intervention">Conduct a time study of packing stations across shifts. Identify whether the bottleneck is physical (space, materials, equipment) or instruction-based (WMS pack config, carton assignment logic). Compare packing performance across operators to isolate whether this is a training, process, or system issue. Review cartonisation rules in WMS to check if pack sequences are optimised.</div>
+        <div class="meta-grid">
+          <div class="meta-cell"><div class="meta-label">Effort</div><div class="meta-val">1 week</div></div>
+          <div class="meta-cell"><div class="meta-label">Owner</div><div class="meta-val">Outbound ops manager</div></div>
+          <div class="meta-cell"><div class="meta-label">Type</div><div class="meta-val">Process investigation</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 4 -->
+    <div class="card high">
+      <div class="card-head">
+        <span class="card-num">04 · HIGH</span>
+        <div class="head-divider"></div>
+        <div class="card-title">Diagnose inbound SLA failures — priority receipt routing</div>
+        <div class="area-tag tag-inbound">Inbound</div>
+      </div>
+      <div class="card-body">
+        <div class="card-problem">13.3% of inbound events are late — a higher rate than outbound despite significantly lower volume. Priority inbound receipts fail at 20.5%, suggesting WMS priority routing for inbound is not configured or not functioning correctly. 254 events affected over 14 days.</div>
+        <div class="card-intervention-label">Recommended action</div>
+        <div class="card-intervention">Audit WMS inbound priority routing configuration. Test whether priority flags are applied correctly at ASN and receipt creation. Review dock door assignment logic to confirm priority arrivals are being directed to the fastest available door. Check whether priority status is being inherited correctly through the inbound flow from ASN through to receipt close.</div>
+        <div class="meta-grid">
+          <div class="meta-cell"><div class="meta-label">Effort</div><div class="meta-val">3–5 days</div></div>
+          <div class="meta-cell"><div class="meta-label">Owner</div><div class="meta-val">Inbound supervisor + WMS team</div></div>
+          <div class="meta-cell"><div class="meta-label">Type</div><div class="meta-val">WMS configuration</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 5 -->
+    <div class="card medium">
+      <div class="card-head">
+        <span class="card-num">05 · MED</span>
+        <div class="head-divider"></div>
+        <div class="card-title">Standardise the QC inspection process — reduce variability</div>
+        <div class="area-tag tag-inbound">Inbound</div>
+      </div>
+      <div class="card-body">
+        <div class="card-problem">QC Inspection averages 63 min with spikes to 122 min. High variability — no consistent inspection pattern visible in the data — suggests inconsistent checklist adherence, staffing gaps, or product-category-specific inspection differences that are not being tracked.</div>
+        <div class="card-intervention-label">Recommended action</div>
+        <div class="card-intervention">Define a standardised inspection checklist per product category. Set time targets per inspection type and begin tracking actuals in WMS. Analyse variability by shift, inspector, and product type to identify whether the issue is training, process, or category-driven. Review whether the current 150 QC events per 14 days is proportionate to inbound volume and adjust inspection sampling rate if needed.</div>
+        <div class="meta-grid">
+          <div class="meta-cell"><div class="meta-label">Effort</div><div class="meta-val">2–3 weeks</div></div>
+          <div class="meta-cell"><div class="meta-label">Owner</div><div class="meta-val">Quality manager</div></div>
+          <div class="meta-cell"><div class="meta-label">Type</div><div class="meta-val">Process standardisation</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Closing note -->
+  <div class="closing-note">
+    <i class="ti ti-info-circle" aria-hidden="true" style="font-size:14px;color:var(--purple);flex-shrink:0;margin-top:1px"></i>
+    <div class="cn-text">These cards are starting points. Each finding represents a potential workstream requiring further investigation, stakeholder alignment, and detailed solution design before implementation begins. The 5 archived findings are included in the full export and can be revisited in the next diagnostic cycle.</div>
+  </div>
+
+  <!-- Archived -->
+  <div class="archived-note">
+    <i class="ti ti-archive" aria-hidden="true" style="font-size:13px;color:#333;flex-shrink:0"></i>
+    5 findings archived — low-priority SLA wave gap, missing operator IDs, returns volume, replenishment SLA, return inspection timing. Included in full export.
+  </div>
+
+</div>
+</div>
+
+<script>
+function goBack(){window.location.href="step6.html";}
+function goNext(){alert("Diagnostic complete — export triggered in full tool.");}
+</script>
+
+
+<footer>
+  <div class="ftr-left">
+    <div class="ftr-status ready">Diagnostic complete — all 7 steps done</div>
+    <div class="pips">
+      <div class="pip done"></div><div class="pip done"></div><div class="pip done"></div>
+      <div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip done"></div>
+    </div>
+  </div>
+  <div class="ftr-btns">
+    <button class="btn btn-ghost" onclick="goBack()"><i class="ti ti-arrow-left" style="font-size:11px"></i> Back</button>
+    <button class="btn btn-export" onclick="alert('Exporting diagnostic report…\n\nFull tool generates PDF + PPTX with all findings, action cards, and process maps.')">
+      <i class="ti ti-download" style="font-size:12px" aria-hidden="true"></i> Export results
+    </button>
+  </div>
+</footer>
+
+</body>
+</html>

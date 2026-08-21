@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WDT — Process validation</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link rel="stylesheet" href="shared.css">
+<style>
+.stp.active 
+.stp.done 
+
+.content{position:fixed;top:92px;left:0;right:0;bottom:54px;overflow-y:auto}
+.inner{max-width:780px;margin:0 auto;padding:24px 24px 48px}
+.eyebrow{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#666;margin-bottom:10px}
+.rule{width:28px;height:3px;background:var(--purple);margin-bottom:14px}
+.page-title{font-size:22px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px}
+.page-title span{color:var(--purple)}
+.page-sub{font-size:12px;color:#888;line-height:1.7;margin-bottom:16px}
+/* Source banner */
+.src-banner{display:flex;align-items:center;gap:8px;padding:9px 13px;background:#080808;border:.5px solid #1a1a1a;border-left:2px solid var(--purple);margin-bottom:16px;font-size:11px;color:#888}
+/* Area tabs */
+.area-tabs{display:flex;align-items:stretch;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.area-tab{display:flex;align-items:center;gap:7px;padding:7px 13px;border:1px solid #1a1a1a;background:#080808;cursor:pointer;transition:all .15s;flex-shrink:0}
+.area-tab:hover{border-color:#2a2a2a;background:#0d0d0d}
+.area-tab.active{border-color:var(--pborder);background:var(--pdim)}
+.area-tab.confirmed{border-color:var(--gborder);background:var(--gdim);cursor:default}
+.tab-name{font-size:11px;font-weight:600;color:#666}
+.area-tab.active .tab-name{color:var(--purple)}
+.area-tab.confirmed .tab-name{color:var(--green)}
+.tab-status{font-size:9px;color:#333;text-transform:uppercase;letter-spacing:.06em}
+.area-tab.active .tab-status{color:rgba(161,0,255,.55)}
+.area-tab.confirmed .tab-status{color:rgba(34,197,94,.55)}
+.tab-count{font-size:9px;color:#444}
+/* Node chain */
+.chain-wrap{overflow-x:auto;padding-bottom:6px;margin-bottom:10px}
+.chain{display:flex;align-items:stretch;min-width:max-content;gap:0}
+.node{width:100px;border:1px solid #1a1a1a;padding:9px 10px 8px;background:#0a0a0a;cursor:pointer;transition:border-color .15s,background .15s;flex-shrink:0}
+.node:hover{border-color:#2a2a2a;background:#111}
+.node.selected{border:2px solid var(--pborder);background:var(--pdim)}
+.node.warn{border-color:var(--yborder);background:var(--ydim)}
+.node.warn.selected{border:2px solid var(--pborder);background:var(--pdim)}
+.node.confirmed-node{border-color:var(--gborder)}
+.node-step{font-size:9px;color:#444;margin-bottom:3px;text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.node.selected .node-step{color:rgba(161,0,255,.6)}
+.node.warn .node-step{color:rgba(234,179,8,.7)}
+.node-name{font-size:10px;font-weight:600;color:#fff;line-height:1.3;margin-bottom:4px}
+.node-count{font-size:9px;color:#555}
+.node.warn .node-count{color:var(--yellow)}
+.arrow{display:flex;align-items:center;padding:0 4px;color:#252525;font-size:16px;flex-shrink:0}
+/* Legend */
+.legend{display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+.leg{display:flex;align-items:center;gap:5px;font-size:10px;color:#888}
+.leg-box{width:12px;height:12px;flex-shrink:0}
+/* Edit panel */
+.edit-panel{border:.5px solid var(--pborder);background:#080808;padding:14px 16px;margin-bottom:14px;display:none}
+.edit-panel.on{display:block}
+.edit-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--purple);margin-bottom:13px}
+.edit-grid{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:end;margin-bottom:13px}
+.edit-field-label{font-size:10px;color:#666;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.08em}
+.edit-input{width:100%;background:#0d0d0d;border:1px solid var(--pborder);color:#fff;font-family:var(--font);font-size:12px;padding:7px 10px;outline:none}
+.pos-label{font-size:10px;color:#666;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.08em}
+.pos-controls{display:flex;align-items:center;gap:6px}
+.pos-btn{background:#0d0d0d;border:.5px solid #1a1a1a;color:#888;padding:6px 10px;font-size:11px;cursor:pointer;font-family:var(--font);display:flex;align-items:center;gap:4px;transition:all .1s;white-space:nowrap}
+.pos-btn:hover{background:#111;color:#ccc;border-color:#333}
+.pos-num{font-size:11px;color:#555;white-space:nowrap}
+.edit-actions{display:flex;align-items:center;gap:8px;padding-top:12px;border-top:.5px solid #111}
+.btn-flag{display:flex;align-items:center;gap:5px;padding:6px 12px;font-size:11px;background:var(--rdim);border:.5px solid rgba(248,113,113,.25);color:var(--red);cursor:pointer;font-family:var(--font);transition:all .1s}
+.btn-flag:hover{background:rgba(248,113,113,.12)}
+.btn-confirm-node{display:flex;align-items:center;gap:5px;padding:6px 14px;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;background:var(--purple);color:#fff;border:none;cursor:pointer;font-family:var(--font);transition:all .1s}
+.btn-confirm-node:hover{background:#8800dd}
+.step-progress{font-size:11px;color:#555;margin-left:6px}
+/* Confirm area row */
+.confirm-area-row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#080808;border:.5px solid #1a1a1a;margin-top:4px}
+.confirm-area-note{font-size:11px;color:#666}
+.btn-confirm-area{display:flex;align-items:center;gap:6px;padding:8px 14px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border:none;cursor:pointer;font-family:var(--font);transition:all .15s;background:var(--purple);color:#fff}
+.btn-confirm-area:hover{background:#8800dd}
+/* Footer */
+
+.btn-next{background:#1a1a1a;color:#333;cursor:not-allowed}
+.btn-next.active{background:var(--purple);color:#fff;cursor:pointer}
+.btn-next.active:hover{background:#8800dd}
+50%{opacity:0}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo"><span class="nav-arrow">></span><span class="nav-name">accenture</span></div>
+  <span class="nav-meta">Warehousing Diagnostic Tool · v1</span>
+</nav>
+
+<div class="step-bar">
+  <div class="stp done"><span class="stp-num"><i class="ti ti-check" style="font-size:8px"></i></span>Setup</div>
+  <div class="stp-sep"><i class="ti ti-chevron-right"></i></div>
+  <div class="stp done"><span class="stp-num"><i class="ti ti-check" style="font-size:8px"></i></span>Schema mapping</div>
+  <div class="stp-sep"><i class="ti ti-chevron-right"></i></div>
+  <div class="stp done"><span class="stp-num"><i class="ti ti-check" style="font-size:8px"></i></span>Data profile</div>
+  <div class="stp-sep"><i class="ti ti-chevron-right"></i></div>
+  <div class="stp active"><span class="stp-num">4</span>Process validation</div>
+  <div class="stp-sep"><i class="ti ti-chevron-right"></i></div>
+  <div class="stp "><span class="stp-num">5</span>Deep dive</div>
+  <div class="stp-sep"><i class="ti ti-chevron-right"></i></div>
+  <div class="stp "><span class="stp-num">6</span>Prioritization</div>
+  <div class="stp-sep"><i class="ti ti-chevron-right"></i></div>
+  <div class="stp "><span class="stp-num">7</span>Action plan</div>
+</div>
+
+<div class="content">
+<div class="inner">
+
+  <div class="eyebrow">Process validation · Step 4 of 7</div>
+  <div class="rule"></div>
+  <div class="page-title">Validate the <span>process flow</span></div>
+  <div class="page-sub">The agent reconstructed these flows from the event log. Confirm each step is correct before analysis runs against it. Rename steps, adjust order, or flag anything that looks wrong.</div>
+
+  <div class="src-banner">
+    <i class="ti ti-cpu" aria-hidden="true" style="font-size:13px;color:var(--purple);flex-shrink:0"></i>
+    Agent-reconstructed from event log · No process template uploaded · Yellow nodes have elevated rework — verify step names are accurate
+  </div>
+
+  <!-- Area tabs -->
+  <div class="area-tabs" id="area-tabs"></div>
+
+  <!-- Node chain -->
+  <div class="chain-wrap">
+    <div class="chain" id="chain"></div>
+  </div>
+
+  <!-- Edit panel -->
+  <div class="edit-panel" id="edit-panel">
+    <div class="edit-title" id="edit-title">Editing · Step — </div>
+    <div class="edit-grid">
+      <div>
+        <div class="edit-field-label">Step name</div>
+        <input class="edit-input" id="edit-name" type="text" placeholder="Enter step name">
+      </div>
+      <div>
+        <div class="pos-label">Position</div>
+        <div class="pos-controls">
+          <button class="pos-btn" onclick="moveNode(-1)"><i class="ti ti-arrow-left" style="font-size:11px"></i> Move left</button>
+          <span class="pos-num" id="pos-label">Step — of —</span>
+          <button class="pos-btn" onclick="moveNode(1)">Move right <i class="ti ti-arrow-right" style="font-size:11px"></i></button>
+        </div>
+      </div>
+    </div>
+    <div class="edit-actions">
+      <button class="btn-flag" onclick="flagNode()"><i class="ti ti-flag" style="font-size:12px"></i> Flag as wrong</button>
+      <button class="btn-confirm-node" onclick="confirmNode()"><i class="ti ti-check" style="font-size:11px"></i> Confirm step</button>
+      <span class="step-progress" id="step-progress"></span>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="leg"><div class="leg-box" style="border:1px solid #1a1a1a;background:#0a0a0a"></div>Pending</div>
+    <div class="leg"><div class="leg-box" style="border:2px solid var(--pborder);background:var(--pdim)"></div>Selected</div>
+    <div class="leg"><div class="leg-box" style="border:1px solid var(--yborder);background:var(--ydim)"></div>Elevated rework — verify</div>
+    <div class="leg"><div class="leg-box" style="border:1px solid var(--gborder);background:var(--gdim)"></div>Confirmed</div>
+  </div>
+
+  <!-- Confirm area -->
+  <div class="confirm-area-row">
+    <div class="confirm-area-note" id="confirm-area-note">Confirm all steps in this area to move on</div>
+    <button class="btn-confirm-area" id="btn-confirm-area" onclick="confirmArea()">
+      Confirm <span id="confirm-area-label">Outbound</span> flow <i class="ti ti-check" style="font-size:11px"></i>
+    </button>
+  </div>
+
+</div>
+</div>
+
+<script>
+function goBack(){window.location.href="step3.html";}
+function goNext(){window.location.href="step5.html";}
+// ── Flow data ─────────────────────────────────────────
+var flows = {
+  outbound: {
+    label:'Outbound', count:'11,255',
+    icon:'ti-arrow-up-circle',
+    nodes:[
+      {name:'Order Released',       count:'941',  status:'normal'},
+      {name:'Wave Planned',         count:'941',  status:'normal'},
+      {name:'Allocation Completed', count:'928',  status:'normal'},
+      {name:'Picking Task Created', count:'2,003',status:'normal'},
+      {name:'Picking Started',      count:'911',  status:'normal'},
+      {name:'Picking Completed',    count:'1,967',status:'warn',  note:'76 rework events'},
+      {name:'Goods Packed',         count:'897',  status:'warn',  note:'52 rework events'},
+      {name:'Order Consolidated',   count:'892',  status:'normal'},
+      {name:'Load Started',         count:'887',  status:'normal'},
+      {name:'Shipment Dispatched',  count:'888',  status:'normal'},
+    ]
+  },
+  inbound: {
+    label:'Inbound', count:'1,914',
+    icon:'ti-arrow-down-circle',
+    nodes:[
+      {name:'ASN Created',              count:'125', status:'normal'},
+      {name:'Trailer Arrived at Gate',  count:'120', status:'normal'},
+      {name:'Goods Arrived',            count:'122', status:'normal'},
+      {name:'Trailer Unloaded',         count:'117', status:'normal'},
+      {name:'QC Inspection Completed',  count:'150', status:'normal'},
+      {name:'Goods Receipted',          count:'394', status:'normal'},
+      {name:'Putaway Task Created',     count:'390', status:'normal'},
+      {name:'Putaway Confirmed',        count:'383', status:'normal'},
+      {name:'Receipt Closed',           count:'113', status:'normal'},
+    ]
+  },
+  replenishment: {
+    label:'Replenishment', count:'763',
+    icon:'ti-refresh',
+    nodes:[
+      {name:'Replenishment Task Created', count:'262', status:'normal'},
+      {name:'Retrieval from AS/RS',        count:'257', status:'normal'},
+      {name:'Replenishment Confirmed',     count:'244', status:'normal'},
+    ]
+  },
+  returns: {
+    label:'Returns', count:'260',
+    icon:'ti-rotate',
+    nodes:[
+      {name:'Return Received',      count:'54', status:'normal'},
+      {name:'Return Inspected',     count:'77', status:'normal'},
+      {name:'Return Dispositioned', count:'76', status:'normal'},
+      {name:'Return Closed',        count:'53', status:'normal'},
+    ]
+  }
+};
+
+// ── State ─────────────────────────────────────────────
+var areaOrder = ['outbound','inbound','replenishment','returns'];
+var currentArea = 'outbound';
+var selectedNode = null;
+var confirmedNodes = {}; // areaKey -> Set of confirmed indices
+var confirmedAreas = {};
+areaOrder.forEach(function(k){ confirmedNodes[k] = new Set(); confirmedAreas[k] = false; });
+
+// ── Render tabs ───────────────────────────────────────
+function renderTabs() {
+  var wrap = document.getElementById('area-tabs');
+  wrap.innerHTML = '';
+  areaOrder.forEach(function(key) {
+    var f = flows[key];
+    var isActive = key === currentArea;
+    var isDone = confirmedAreas[key];
+    var div = document.createElement('div');
+    div.className = 'area-tab' + (isActive?' active':'') + (isDone?' confirmed':'');
+    div.onclick = isDone ? null : function(k){ return function(){ switchArea(k); }; }(key);
+    div.innerHTML =
+      '<i class="ti ' + f.icon + '" aria-hidden="true" style="font-size:13px;flex-shrink:0;color:' + (isActive?'var(--purple)':isDone?'var(--green)':'#444') + '"></i>' +
+      '<div>' +
+        '<div class="tab-name">' + f.label + '</div>' +
+        '<div class="tab-count">' + f.count + ' events</div>' +
+      '</div>' +
+      '<div class="tab-status">' + (isDone?'confirmed':isActive?'editing':'pending') + '</div>';
+    wrap.appendChild(div);
+  });
+}
+
+// ── Render chain ──────────────────────────────────────
+function renderChain() {
+  var chain = document.getElementById('chain');
+  chain.innerHTML = '';
+  var f = flows[currentArea];
+  selectedNode = null;
+  document.getElementById('edit-panel').classList.remove('on');
+
+  f.nodes.forEach(function(node, i) {
+    if (i > 0) {
+      var arr = document.createElement('div');
+      arr.className = 'arrow';
+      arr.innerHTML = '›';
+      chain.appendChild(arr);
+    }
+    var div = document.createElement('div');
+    var isConfirmed = confirmedNodes[currentArea].has(i);
+    div.className = 'node' + (node.status==='warn'?' warn':'') + (isConfirmed?' confirmed-node':'');
+    div.dataset.idx = i;
+    div.onclick = function(idx){ return function(){ selectNode(idx); }; }(i);
+
+    var stepLabel = 'Step ' + (i+1);
+    if (node.status === 'warn') stepLabel += ' · ⚠ rework';
+    if (isConfirmed) stepLabel = 'Step ' + (i+1) + ' · ✓';
+
+    div.innerHTML =
+      '<div class="node-step">' + stepLabel + '</div>' +
+      '<div class="node-name">' + node.name + '</div>' +
+      '<div class="node-count">' + (node.note || node.count + ' events') + '</div>';
+    chain.appendChild(div);
+  });
+
+  updateStepProgress();
+}
+
+// ── Node selection ────────────────────────────────────
+function selectNode(idx) {
+  selectedNode = idx;
+  var f = flows[currentArea];
+  var node = f.nodes[idx];
+  // Highlight
+  document.querySelectorAll('.node').forEach(function(n){ n.classList.remove('selected'); });
+  document.querySelector('.node[data-idx="' + idx + '"]').classList.add('selected');
+  // Edit panel
+  var panel = document.getElementById('edit-panel');
+  panel.classList.add('on');
+  document.getElementById('edit-title').textContent = 'Editing · Step ' + (idx+1) + ' — ' + node.name;
+  document.getElementById('edit-name').value = node.name;
+  document.getElementById('pos-label').textContent = 'Step ' + (idx+1) + ' of ' + f.nodes.length;
+  updateStepProgress();
+}
+
+function updateStepProgress() {
+  var confirmed = confirmedNodes[currentArea].size;
+  var total = flows[currentArea].nodes.length;
+  document.getElementById('step-progress').textContent = confirmed + ' of ' + total + ' steps confirmed';
+}
+
+// ── Node actions ──────────────────────────────────────
+function confirmNode() {
+  if (selectedNode === null) return;
+  var newName = document.getElementById('edit-name').value.trim();
+  if (newName) flows[currentArea].nodes[selectedNode].name = newName;
+  confirmedNodes[currentArea].add(selectedNode);
+  renderChain();
+  // Auto-select next unconfirmed
+  var f = flows[currentArea];
+  for (var i = 0; i < f.nodes.length; i++) {
+    if (!confirmedNodes[currentArea].has(i)) { selectNode(i); return; }
+  }
+  document.getElementById('edit-panel').classList.remove('on');
+  updateConfirmAreaBtn();
+}
+
+function flagNode() {
+  if (selectedNode === null) return;
+  var node = flows[currentArea].nodes[selectedNode];
+  node.status = 'warn';
+  node.note = '⚑ Flagged for review';
+  renderChain();
+  selectNode(selectedNode);
+  alert('Step "' + node.name + '" flagged. It will carry a review marker into the deep dive.');
+}
+
+function moveNode(dir) {
+  if (selectedNode === null) return;
+  var nodes = flows[currentArea].nodes;
+  var target = selectedNode + dir;
+  if (target < 0 || target >= nodes.length) return;
+  var tmp = nodes[selectedNode]; nodes[selectedNode] = nodes[target]; nodes[target] = tmp;
+  // Move confirmation state too
+  var aCon = confirmedNodes[currentArea].has(selectedNode);
+  var bCon = confirmedNodes[currentArea].has(target);
+  if (aCon) confirmedNodes[currentArea].add(target); else confirmedNodes[currentArea].delete(target);
+  if (bCon) confirmedNodes[currentArea].add(selectedNode); else confirmedNodes[currentArea].delete(selectedNode);
+  selectedNode = target;
+  renderChain();
+  selectNode(target);
+}
+
+// ── Area confirm ──────────────────────────────────────
+function updateConfirmAreaBtn() {
+  var confirmed = confirmedNodes[currentArea].size;
+  var total = flows[currentArea].nodes.length;
+  var note = document.getElementById('confirm-area-note');
+  if (confirmed === total) {
+    note.textContent = 'All ' + total + ' steps confirmed — ready to lock this flow';
+  } else {
+    note.textContent = confirmed + ' of ' + total + ' steps confirmed — confirm remaining steps to proceed';
+  }
+}
+
+function confirmArea() {
+  var confirmed = confirmedNodes[currentArea].size;
+  var total = flows[currentArea].nodes.length;
+  if (confirmed < total) {
+    if (!confirm('Not all steps are confirmed yet (' + confirmed + ' of ' + total + '). Confirm this area anyway?')) return;
+    // Mark all as confirmed
+    for (var i = 0; i < total; i++) confirmedNodes[currentArea].add(i);
+  }
+  confirmedAreas[currentArea] = true;
+  document.getElementById('edit-panel').classList.remove('on');
+  // Switch to next unconfirmed area
+  var next = areaOrder.find(function(k){ return !confirmedAreas[k]; });
+  if (next) {
+    switchArea(next);
+  } else {
+    // All done
+    renderTabs();
+    document.getElementById('ftr-status').textContent = 'All process areas confirmed — ready to continue';
+    document.getElementById('ftr-status').className = 'ftr-status ready';
+    var bn4=document.getElementById('btn-next');bn4.className='btn btn-primary';bn4.onclick=function(){goNext();};
+    
+    document.getElementById('pip5').className = 'pip done';
+    document.getElementById('confirm-area-row').style.display = 'none';
+  }
+}
+
+function switchArea(key) {
+  currentArea = key;
+  document.getElementById('confirm-area-label').textContent = flows[key].label;
+  renderTabs();
+  renderChain();
+  updateConfirmAreaBtn();
+}
+
+// ── Init ──────────────────────────────────────────────
+renderTabs();
+renderChain();
+updateConfirmAreaBtn();
+</script>
+
+
+<footer>
+  <div class="ftr-left">
+    <div class="ftr-status" id="ftr-status">Confirm all process areas to continue</div>
+    <div class="pips">
+      <div class="pip done"></div><div class="pip done"></div><div class="pip done"></div>
+      <div class="pip done"></div><div class="pip active" id="pip5"></div><div class="pip"></div><div class="pip"></div>
+    </div>
+  </div>
+  <div class="ftr-btns">
+    <button class="btn btn-ghost" onclick="goBack()"><i class="ti ti-arrow-left" style="font-size:11px"></i> Back</button>
+    <button class="btn btn-disabled" id="btn-next">Continue to deep dive <i class="ti ti-arrow-right" style="font-size:11px"></i></button>
+  </div>
+</footer>
+
+</body>
+</html>
