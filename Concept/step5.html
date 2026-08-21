@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WDT — Deep dive</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link rel="stylesheet" href="shared.css">
+<style>
+.stp.active 
+.stp.done 
+
+/* Body layout */
+.body-wrap{position:fixed;top:92px;left:0;right:0;bottom:54px;display:grid;grid-template-columns:148px 1fr}
+/* Sidebar */
+.sidebar{border-right:.5px solid #1a1a1a;background:#080808;overflow-y:auto}
+.sidebar-section{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#444;padding:12px 14px 6px}
+.area-item{display:flex;align-items:flex-start;gap:9px;padding:9px 14px;border-left:2px solid transparent;cursor:pointer;transition:all .1s}
+.area-item:hover{background:#0d0d0d}
+.area-item.active{border-left-color:var(--purple);background:var(--pdim)}
+.area-item.active .area-item-name{color:var(--purple)}
+.area-item.active .area-item-count{color:rgba(161,0,255,.5)}
+.area-item-name{font-size:11px;font-weight:600;color:#666}
+.area-item-count{font-size:9px;color:#333;margin-top:2px}
+.sidebar-divider{border:none;border-top:.5px solid #111;margin:8px 0}
+.findings-wrap{padding:4px 0}
+.finding-line{display:flex;align-items:center;gap:6px;padding:4px 14px;font-size:10px;color:#888}
+.fdot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+/* Main */
+.main{overflow-y:auto;padding:20px 22px 28px}
+.area-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.area-head-left{}
+.area-eyebrow{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#666;margin-bottom:4px}
+.area-title{font-size:18px;font-weight:700;letter-spacing:-.01em;color:#fff}
+.area-meta{font-size:10px;color:#555;margin-top:2px}
+/* KPI strip */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:16px}
+.kpi{background:#0d0d0d;border:.5px solid #1a1a1a;padding:10px 12px}
+.kpi.warn{border-top:2px solid var(--yellow)}
+.kpi.crit{border-top:2px solid var(--red)}
+.kpi-label{font-size:10px;color:#666;margin-bottom:4px;text-transform:uppercase;letter-spacing:.07em;font-weight:700}
+.kpi-val{font-size:19px;font-weight:700;color:#fff;letter-spacing:-.02em;line-height:1}
+.kpi.warn .kpi-val{color:var(--yellow)}
+.kpi.crit .kpi-val{color:var(--red)}
+.kpi-sub{font-size:10px;color:#555;margin-top:3px}
+/* Section label */
+.sec-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#666;margin-bottom:8px}
+/* Process map */
+.map-wrap{overflow-x:auto;padding-bottom:4px;margin-bottom:8px}
+.map{display:flex;align-items:stretch;min-width:max-content;gap:0}
+.mnode{width:90px;border:1px solid #1a1a1a;padding:8px 9px 7px;background:#0a0a0a;flex-shrink:0}
+.mnode.warn{border-color:var(--yborder);background:var(--ydim)}
+.mnode.high{border-color:var(--rborder);background:var(--rdim)}
+.mnode-step{font-size:8px;color:#444;margin-bottom:2px;text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.mnode.warn .mnode-step{color:rgba(234,179,8,.65)}
+.mnode.high .mnode-step{color:rgba(248,113,113,.65)}
+.mnode-name{font-size:10px;font-weight:600;color:#fff;line-height:1.3;margin-bottom:3px}
+.mnode-lt{font-size:9px;color:#666}
+.mnode.warn .mnode-lt{color:var(--yellow)}
+.mnode.high .mnode-lt{color:var(--red)}
+.marrow{display:flex;align-items:center;padding:0 3px;color:#252525;font-size:15px;flex-shrink:0}
+/* Inline finding */
+.inline-finding{display:flex;align-items:flex-start;gap:9px;padding:10px 12px;margin-bottom:16px;border-radius:0}
+.inline-finding.high{background:var(--rdim);border-left:2px solid var(--red)}
+.inline-finding.med{background:var(--ydim);border-left:2px solid var(--yellow)}
+.if-body{flex:1}
+.if-title{font-size:11px;font-weight:600;color:#fff;margin-bottom:2px}
+.if-desc{font-size:10px;color:#888;line-height:1.55}
+.if-badge{display:flex;align-items:center;gap:4px;padding:2px 6px;flex-shrink:0;margin-top:1px}
+.if-badge.high{background:rgba(248,113,113,.1);border:.5px solid rgba(248,113,113,.2)}
+.if-badge.med{background:rgba(234,179,8,.1);border:.5px solid rgba(234,179,8,.2)}
+.if-badge-dot{width:5px;height:5px;border-radius:50%}
+.if-badge.high .if-badge-dot{background:var(--red)}
+.if-badge.med .if-badge-dot{background:var(--yellow)}
+.if-badge-lbl{font-size:9px;font-weight:700}
+.if-badge.high .if-badge-lbl{color:var(--red)}
+.if-badge.med .if-badge-lbl{color:var(--yellow)}
+/* Analysis tables */
+.atbl{border:.5px solid #1a1a1a;overflow:hidden;margin-bottom:8px}
+.atbl-head{display:grid;background:#0d0d0d;border-bottom:.5px solid #1a1a1a;padding:6px 12px}
+.atbl-row{display:grid;padding:8px 12px;border-bottom:.5px solid #080808;align-items:center}
+.atbl-row:last-child{border-bottom:none}
+.atbl-row.alt{background:#040404}
+.th{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#555}
+.td{font-size:11px;color:#ccc}
+.td.primary{color:#fff;font-weight:600}
+.td.warn{color:var(--yellow)}
+.td.high{color:var(--red)}
+.td.muted{color:#666}
+/* Findings summary */
+.findings-summary{background:#080808;border:.5px solid #1a1a1a;padding:12px 14px;margin-top:4px}
+.fs-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#666;margin-bottom:10px}
+.fs-item{display:flex;align-items:center;gap:8px;font-size:11px;color:#ccc;margin-bottom:6px}
+.fs-item:last-child{margin-bottom:0}
+.fs-
+.fs-footer-note{font-size:10px;color:#555}
+.reviewed-badge{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--green)}
+/* Footer */
+
+.btn-next{background:var(--purple);color:#fff;cursor:pointer}
+.btn-next:hover{background:#8800dd}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo"><span class="nav-arrow">></span><span class="nav-name">accenture</span></div>
+  <span class="nav-meta">Warehousing Diagnostic Tool · v1</span>
+</nav>
+
+<div class="step-bar">
+  <div class="stp done"><span class="stp-num"><i class="ti ti-check" style="font-size:8px"></i></span>Setup</div>
+  <div class="stp-sep"><i class="ti ti-chevron-right"></i></div>
+  <div class="stp done"><span class="stp-num"><i class="ti ti-check" style="font-size:8px"></i></span>Schema mapping</div>
+  <div class="stp-sep"><i class="ti ti-chevron-right"></i></div>
+  <div class="stp done"><span class="stp-num"><i class="ti ti-check" style="font-size:8px"></i></span>Data profile</div>
+  <div class="stp-sep"><i class="ti ti-chevron-right"></i></div>
+  <div class="stp done"><span class="stp-num"><i class="ti ti-check" style="font-size:8px"></i></span>Process validation</div>
+  <div class="stp-sep"><i class="ti ti-chevron-right"></i></div>
+  <div class="stp active"><span class="stp-num">5</span>Deep dive</div>
+  <div class="stp-sep"><i class="ti ti-chevron-right"></i></div>
+  <div class="stp "><span class="stp-num">6</span>Prioritization</div>
+  <div class="stp-sep"><i class="ti ti-chevron-right"></i></div>
+  <div class="stp "><span class="stp-num">7</span>Action plan</div>
+</div>
+
+<div class="body-wrap">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-section">Process areas</div>
+    <div class="area-item active" id="nav-outbound" onclick="showArea('outbound')">
+      <i class="ti ti-arrow-up-circle" aria-hidden="true" style="font-size:13px;flex-shrink:0;margin-top:1px"></i>
+      <div><div class="area-item-name">Outbound</div><div class="area-item-count">11,255 events</div></div>
+    </div>
+    <div class="area-item" id="nav-inbound" onclick="showArea('inbound')">
+      <i class="ti ti-arrow-down-circle" aria-hidden="true" style="font-size:13px;color:#444;flex-shrink:0;margin-top:1px"></i>
+      <div><div class="area-item-name">Inbound</div><div class="area-item-count">1,914 events</div></div>
+    </div>
+    <div class="area-item" id="nav-replenishment" onclick="showArea('replenishment')">
+      <i class="ti ti-refresh" aria-hidden="true" style="font-size:13px;color:#444;flex-shrink:0;margin-top:1px"></i>
+      <div><div class="area-item-name">Replenishment</div><div class="area-item-count">763 events</div></div>
+    </div>
+    <div class="area-item" id="nav-returns" onclick="showArea('returns')">
+      <i class="ti ti-rotate" aria-hidden="true" style="font-size:13px;color:#444;flex-shrink:0;margin-top:1px"></i>
+      <div><div class="area-item-name">Returns</div><div class="area-item-count">260 events</div></div>
+    </div>
+    <hr class="sidebar-divider">
+    <div class="sidebar-section">Findings so far</div>
+    <div class="findings-wrap" id="sidebar-findings">
+      <div class="finding-line"><div class="fdot" style="background:var(--red)"></div>2 high</div>
+      <div class="finding-line"><div class="fdot" style="background:var(--yellow)"></div>1 medium</div>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="main" id="main-content"></div>
+</div>
+
+<script>
+function goBack(){window.location.href="step4.html";}
+function goNext(){window.location.href="step6.html";}
+var areas = {
+  outbound: {
+    title:'Outbound process analysis',
+    meta:'Aug 2–16, 2026 · 11,255 events · Oracle WMS Cloud',
+    kpis:[
+      {label:'Total events', val:'11,255', sub:'79% of full log', cls:''},
+      {label:'SLA late', val:'9.5%', sub:'1,073 events', cls:'crit'},
+      {label:'Rework events', val:'3.6%', sub:'404 flagged', cls:'warn'},
+      {label:'Process steps', val:'10', sub:'agent-validated', cls:''},
+    ],
+    nodes:[
+      {name:'Order Released',      lt:'0.5 min',  status:'normal'},
+      {name:'Wave Planned',        lt:'1.0 min',  status:'normal'},
+      {name:'Allocation Completed',lt:'1.0 min',  status:'normal'},
+      {name:'Picking Task Created',lt:'0.3 min',  status:'normal'},
+      {name:'Picking Started',     lt:'0.2 min',  status:'normal'},
+      {name:'Picking Completed',   lt:'7.2 min',  status:'warn',  note:'76 rework'},
+      {name:'Goods Packed',        lt:'16.2 min', status:'high',  note:'52 rework'},
+      {name:'Order Consolidated',  lt:'7.3 min',  status:'normal'},
+      {name:'Load Started',        lt:'2.1 min',  status:'normal'},
+      {name:'Shipment Dispatched', lt:'3.6 min',  status:'normal'},
+    ],
+    mapFindings:[
+      {sev:'high', title:'Goods Packed averages 16.2 min — highest step in outbound flow', desc:'52 rework events concentrated here. Likely cause: packing instruction errors or scan mismatches. Cascading impact on consolidation and dispatch timing.'},
+      {sev:'high', title:'9.5% of outbound events breach SLA — 1,073 of 11,255', desc:'Picking Completed accounts for 76 rework events, Shipment Dispatched for 31. Root cause likely in pick task quality and last-mile handoff.'},
+    ],
+    variantCols:['Priority', 'Volume', 'Late SLA', 'Rework'],
+    variantRows:[
+      ['High',   '3,375', '7.2%',  '2.8%'],
+      ['Normal', '6,763', '10.1%', '3.9%'],
+      ['Low',    '1,117', '11.8%', '4.6%'],
+    ],
+    variantFinding:{sev:'med', title:'Low-priority orders breach SLA at 11.8% — nearly double the high-priority rate', desc:'Priority routing logic may not be actively enforced in wave planning. Review WMS wave configuration to ensure high-priority orders get earlier pick slots.'},
+    resourceCols:['Activity', 'Events', 'Rework cnt', 'Rework %'],
+    resourceRows:[
+      ['Picking Completed',   '1,967', '76', '3.9%'],
+      ['Goods Packed',        '897',   '52', '5.8%'],
+      ['Picking Task Created','2,003', '50', '2.5%'],
+      ['Shipment Dispatched', '888',   '31', '3.5%'],
+    ],
+    summaryFindings:[
+      {dot:'red',  text:'Goods Packed 16.2 min avg — highest step, 52 rework events, likely bottleneck'},
+      {dot:'red',  text:'9.5% SLA late — 1,073 events, picking and packing are primary contributors'},
+      {dot:'yellow',text:'Low-priority SLA breach rate nearly double high-priority — wave planning misconfiguration'},
+    ],
+  },
+  inbound: {
+    title:'Inbound process analysis',
+    meta:'Aug 2–16, 2026 · 1,914 events · Oracle WMS Cloud',
+    kpis:[
+      {label:'Total events', val:'1,914', sub:'13.5% of full log', cls:''},
+      {label:'SLA late', val:'13.3%', sub:'254 events', cls:'crit'},
+      {label:'Rework events', val:'0.9%', sub:'17 flagged', cls:''},
+      {label:'Process steps', val:'9', sub:'agent-validated', cls:''},
+    ],
+    nodes:[
+      {name:'ASN Created',            lt:'0.3 min', status:'normal'},
+      {name:'Trailer Arrived at Gate',lt:'2.1 min', status:'normal'},
+      {name:'Goods Arrived',          lt:'10.7 min',status:'normal'},
+      {name:'Trailer Unloaded',       lt:'120 min', status:'high', note:'4× benchmark'},
+      {name:'QC Inspection',          lt:'63 min',  status:'warn', note:'high variability'},
+      {name:'Goods Receipted',        lt:'1.4 min', status:'normal'},
+      {name:'Putaway Task Created',   lt:'0.4 min', status:'normal'},
+      {name:'Putaway Confirmed',      lt:'19 min',  status:'warn', note:'spikes to 60 min'},
+      {name:'Receipt Closed',         lt:'1.1 min', status:'normal'},
+    ],
+    mapFindings:[
+      {sev:'high', title:'Trailer Unloading averages 120 min — 4× the 30 min benchmark', desc:'Highest lead time step in the full operation. Spikes to 200 min. Likely dock crew, equipment availability, or carrier scheduling. Cascades into QC and putaway delays.'},
+      {sev:'med', title:'QC Inspection shows high variability — 63 min avg, spikes to 122 min', desc:'No consistent inspection pattern visible in the data. Variability suggests staffing gaps or inconsistent checklist adherence across shifts.'},
+    ],
+    variantCols:['Order type', 'Events', 'Late SLA', 'Avg putaway'],
+    variantRows:[
+      ['Standard receipt', '1,621', '11.8%', '17 min'],
+      ['Priority receipt',   '293', '20.5%', '24 min'],
+    ],
+    variantFinding:{sev:'med', title:'Priority inbound receipts breach SLA at 20.5% — higher than standard', desc:'Priority receipts are taking longer through putaway despite higher urgency. May indicate WMS priority routing for inbound is not configured or not working correctly.'},
+    resourceCols:['Equipment', 'Events', 'Avg lead time', 'Note'],
+    resourceRows:[
+      ['ASRS-CRN-01', '257', '8.4 min', 'Retrieval crane — within range'],
+      ['RT-REACH-xx',  '383', '19 min',  'Reach trucks — putaway confirm'],
+      ['AGV-TUG-xx',   '244', '2.9 min', 'AGV tugs — replen confirm'],
+    ],
+    summaryFindings:[
+      {dot:'red',   text:'Trailer Unloading 120 min avg — 4× benchmark, cascading impact on all downstream steps'},
+      {dot:'red',   text:'13.3% inbound SLA late — higher rate than outbound despite lower volume'},
+      {dot:'yellow',text:'QC Inspection variability — 63 min avg, σ high, no consistent pattern'},
+    ],
+  },
+  replenishment: {
+    title:'Replenishment process analysis',
+    meta:'Aug 2–16, 2026 · 763 events · Oracle WMS Cloud',
+    kpis:[
+      {label:'Total events', val:'763', sub:'5.4% of full log', cls:''},
+      {label:'SLA late', val:'4.1%', sub:'31 events', cls:'warn'},
+      {label:'Rework events', val:'0.5%', sub:'4 flagged', cls:''},
+      {label:'Process steps', val:'3', sub:'agent-validated', cls:''},
+    ],
+    nodes:[
+      {name:'Replenishment Task Created',lt:'0.9 min', status:'normal'},
+      {name:'Retrieval from AS/RS',       lt:'8.4 min', status:'normal'},
+      {name:'Replenishment Confirmed',    lt:'2.9 min', status:'normal'},
+    ],
+    mapFindings:[
+      {sev:'med', title:'6.9% of operator IDs missing — limits traceability for replenishment tasks', desc:'Missing operator IDs are concentrated across all three replenishment steps. Without operator attribution, it is not possible to analyse individual performance or identify root cause of delays.'},
+    ],
+    variantCols:['Priority', 'Volume', 'Avg lead time', 'Late SLA'],
+    variantRows:[
+      ['High',   '198', '11.2 min', '3.5%'],
+      ['Normal', '502', '12.4 min', '4.2%'],
+      ['Low',    '63',  '13.1 min', '5.6%'],
+    ],
+    variantFinding:null,
+    resourceCols:['Equipment', 'Events', 'Avg lead time', 'Coverage'],
+    resourceRows:[
+      ['ASRS-CRN-01', '257', '8.4 min', 'Full'],
+      ['ASRS-CRN-04',  '0',  '—',       'No data in period'],
+    ],
+    summaryFindings:[
+      {dot:'yellow',text:'6.9% operator IDs missing — limits root cause analysis for replenishment'},
+      {dot:'yellow',text:'4.1% late SLA — low rate, limited impact, monitor going forward'},
+    ],
+  },
+  returns: {
+    title:'Returns process analysis',
+    meta:'Aug 2–16, 2026 · 260 events · Oracle WMS Cloud',
+    kpis:[
+      {label:'Total events', val:'260', sub:'1.8% of full log', cls:''},
+      {label:'SLA late', val:'1.2%', sub:'3 events', cls:''},
+      {label:'Rework events', val:'0.4%', sub:'1 flagged', cls:''},
+      {label:'Process steps', val:'4', sub:'agent-validated', cls:''},
+    ],
+    nodes:[
+      {name:'Return Received',     lt:'3.2 min', status:'normal'},
+      {name:'Return Inspected',    lt:'18 min',  status:'normal'},
+      {name:'Return Dispositioned',lt:'4.1 min', status:'normal'},
+      {name:'Return Closed',       lt:'1.0 min', status:'normal'},
+    ],
+    mapFindings:[
+      {sev:'med', title:'Low volume limits analytical confidence — 260 events over 14 days', desc:'Returns account for 1.8% of total events. While SLA performance is good (1.2% late), the data is insufficient to draw strong conclusions. Field observation recommended to supplement.'},
+    ],
+    variantCols:['Disposition', 'Count', '% of returns', 'Late SLA'],
+    variantRows:[
+      ['Restock',  '143', '55%', '0.7%'],
+      ['Quarantine','76', '29%', '1.3%'],
+      ['Dispose',   '41', '16%', '2.4%'],
+    ],
+    variantFinding:null,
+    resourceCols:['Step', 'Events', 'Avg lead time', 'Note'],
+    resourceRows:[
+      ['Return Received',     '54', '3.2 min', 'Within expected range'],
+      ['Return Inspected',    '77', '18 min',  'Longest step — manual inspection'],
+      ['Return Dispositioned','76', '4.1 min', 'Within expected range'],
+      ['Return Closed',       '53', '1.0 min', 'Within expected range'],
+    ],
+    summaryFindings:[
+      {dot:'yellow',text:'Insufficient volume for strong conclusions — supplement with on-site observation'},
+      {dot:'yellow',text:'Return Inspection at 18 min is longest step — verify this is expected for product type'},
+    ],
+  }
+};
+
+var currentArea = 'outbound';
+
+function showArea(key) {
+  currentArea = key;
+  // Update sidebar
+  ['outbound','inbound','replenishment','returns'].forEach(function(k) {
+    var el = document.getElementById('nav-' + k);
+    el.classList.toggle('active', k === key);
+    var icon = el.querySelector('i');
+    icon.style.color = k === key ? 'var(--purple)' : '#444';
+    el.querySelector('.area-item-name').style.color = k === key ? 'var(--purple)' : '';
+    el.querySelector('.area-item-count').style.color = k === key ? 'rgba(161,0,255,.5)' : '';
+  });
+  // Update sidebar findings
+  var a = areas[key];
+  var highs = a.summaryFindings.filter(function(f){ return f.dot === 'red'; }).length;
+  var meds = a.summaryFindings.filter(function(f){ return f.dot === 'yellow'; }).length;
+  document.getElementById('sidebar-findings').innerHTML =
+    (highs ? '<div class="finding-line"><div class="fdot" style="background:var(--red)"></div>' + highs + ' high</div>' : '') +
+    (meds ? '<div class="finding-line"><div class="fdot" style="background:var(--yellow)"></div>' + meds + ' medium</div>' : '');
+  renderMain(key);
+}
+
+function renderMain(key) {
+  var a = areas[key];
+  var html = '';
+  // Header
+  html += '<div class="area-head"><div class="area-head-left"><div class="area-eyebrow">' + key + ' · deep dive</div><div class="area-title">' + a.title + '</div><div class="area-meta">' + a.meta + '</div></div></div>';
+  // KPIs
+  html += '<div class="kpis">';
+  a.kpis.forEach(function(k) {
+    html += '<div class="kpi' + (k.cls?' '+k.cls:'') + '"><div class="kpi-label">' + k.label + '</div><div class="kpi-val">' + k.val + '</div><div class="kpi-sub">' + k.sub + '</div></div>';
+  });
+  html += '</div>';
+  // Process map
+  html += '<div class="sec-label">Process map</div>';
+  html += '<div class="map-wrap"><div class="map">';
+  a.nodes.forEach(function(n, i) {
+    if (i > 0) html += '<div class="marrow">›</div>';
+    var statusClass = n.status === 'high' ? ' high' : n.status === 'warn' ? ' warn' : '';
+    var stepLabel = 'Step ' + (i+1) + (n.status === 'high' ? ' · ▲ high' : n.status === 'warn' ? ' · variable' : '');
+    html += '<div class="mnode' + statusClass + '"><div class="mnode-step">' + stepLabel + '</div><div class="mnode-name">' + n.name + '</div><div class="mnode-lt">' + (n.note || n.lt) + '</div></div>';
+  });
+  html += '</div></div>';
+  // Map findings
+  a.mapFindings.forEach(function(f) {
+    html += inlineFinding(f);
+  });
+  // Variant table
+  html += '<div class="sec-label">' + (key === 'outbound' ? 'SLA by priority level' : key === 'inbound' ? 'Order type breakdown' : key === 'replenishment' ? 'Priority breakdown' : 'Disposition breakdown') + '</div>';
+  html += renderTable(a.variantCols, a.variantRows, a.variantCols.length);
+  if (a.variantFinding) html += inlineFinding(a.variantFinding);
+  // Resource table
+  html += '<div class="sec-label">' + (key === 'outbound' ? 'Rework by activity' : 'Equipment and resource view') + '</div>';
+  html += renderTable(a.resourceCols, a.resourceRows, a.resourceCols.length);
+  // Findings summary
+  html += '<div class="findings-summary"><div class="fs-title">Findings — ' + a.title.split(' ')[0].toLowerCase() + ' · ' + a.summaryFindings.length + ' detected</div>';
+  a.summaryFindings.forEach(function(f) {
+    html += '<div class="fs-item"><div class="fdot" style="background:' + (f.dot==='red'?'var(--red)':'var(--yellow)') + '"></div>' + f.text + '</div>';
+  });
+  html += '<div class="fs-footer"><div class="fs-footer-note">Findings carry forward to prioritization</div><div class="reviewed-badge"><i class="ti ti-circle-check" style="font-size:13px"></i>' + key.charAt(0).toUpperCase()+key.slice(1) + ' reviewed</div></div></div>';
+  document.getElementById('main-content').innerHTML = html;
+}
+
+function inlineFinding(f) {
+  return '<div class="inline-finding ' + f.sev + '">' +
+    '<i class="ti ti-alert-triangle" aria-hidden="true" style="font-size:13px;color:' + (f.sev==='high'?'var(--red)':'var(--yellow)') + ';flex-shrink:0;margin-top:1px"></i>' +
+    '<div class="if-body"><div class="if-title">' + f.title + '</div><div class="if-desc">' + f.desc + '</div></div>' +
+    '<div class="if-badge ' + f.sev + '"><div class="if-badge-dot"></div><span class="if-badge-lbl">' + f.sev.toUpperCase() + '</span></div>' +
+    '</div>';
+}
+
+function renderTable(cols, rows, count) {
+  var gtc = 'grid-template-columns:' + Array(count).fill('1fr').join(' ');
+  var html = '<div class="atbl">';
+  html += '<div class="atbl-head" style="' + gtc + '">';
+  cols.forEach(function(c){ html += '<div class="th">' + c + '</div>'; });
+  html += '</div>';
+  rows.forEach(function(row, ri) {
+    html += '<div class="atbl-row' + (ri%2?' alt':'') + '" style="' + gtc + '">';
+    row.forEach(function(cell, ci) {
+      var cls = ci === 0 ? 'primary' : (cell.includes('%') && parseFloat(cell) > 10) ? 'warn' : 'muted';
+      if (cell.includes('—') || cell === 'No data in period') cls = 'muted';
+      html += '<div class="td ' + cls + '">' + cell + '</div>';
+    });
+    html += '</div>';
+  });
+  html += '</div>';
+  return html;
+}
+
+renderMain('outbound');
+</script>
+
+
+<footer>
+  <div class="ftr-left">
+    <div class="ftr-status">Review all process areas — then continue</div>
+    <div class="pips">
+      <div class="pip done"></div><div class="pip done"></div><div class="pip done"></div>
+      <div class="pip done"></div><div class="pip done"></div><div class="pip active"></div><div class="pip"></div>
+    </div>
+  </div>
+  <div class="ftr-btns">
+    <button class="btn btn-ghost" onclick="goBack()"><i class="ti ti-arrow-left" style="font-size:11px"></i> Back</button>
+    <button class="btn btn-primary" onclick="goNext()">Continue to prioritization <i class="ti ti-arrow-right" style="font-size:11px"></i></button>
+  </div>
+</footer>
+
+</body>
+</html>
